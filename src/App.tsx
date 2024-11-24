@@ -5,6 +5,7 @@ import Welcome from './components/Welcome';
 import CaseInput from './components/CaseInput';
 import Analysis from './components/Analysis';
 import Verdict from './components/Verdict';
+import PoliceStationMap from './components/PoliceStationMap';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/" element={<Welcome />} />
             <Route path="/case-input" element={<CaseInput />} />
             <Route path="/analysis" element={<Analysis />} />
+            <Route path="/police-station-map" element={<PoliceStationMap />} />
             <Route path="/verdict" element={<Verdict />} />
           </Routes>
         </main>

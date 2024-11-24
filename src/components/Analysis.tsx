@@ -13,7 +13,7 @@ const Analysis = () => {
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const caseDetails = location.state?.caseDetails;
-  const [translatedText, setTranslatedText] = useState<string | null>(null);
+  // const [translatedText, setTranslatedText] = useState<string | null>(null);
 
   useEffect(() => {
     if (!caseDetails) {
@@ -205,6 +205,10 @@ const Analysis = () => {
   //   setTranslatedText(translation);
   // };
 
+  const handlePoliceStationClick = () => {
+    navigate('/police-station-map');
+  };
+
   if (!caseDetails) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -335,6 +339,12 @@ const Analysis = () => {
               className="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
             >
               <span>Download PDF</span>
+            </button>
+            <button
+              onClick={handlePoliceStationClick}
+              className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+            >
+              <span>Nearby Police Stations</span>
             </button>
             {/* <button
               onClick={translateToUrdu}
