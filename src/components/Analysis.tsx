@@ -140,7 +140,6 @@ const Analysis = () => {
         doc.text(line, 10, currentY);
         currentY += 10;
       });
-      doc.text("Digital Lawyer PK - Case Analysis made by @naeem_pansota-Github/NP-55555", 10, 10);
       
     }
 
