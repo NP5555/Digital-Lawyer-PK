@@ -1,14 +1,58 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Gavel, BookOpen, AlertTriangle, CheckCircle } from 'lucide-react';
 import type { AIAnalysis } from '../services/gemini';
 
 const Verdict = () => {
   const location = useLocation();
-  const { caseDetails, aiAnalysis } = location.state as { 
+  const { caseDetails, aiAnalysis: initialAnalysis } = location.state as { 
     caseDetails: any;
-    aiAnalysis: AIAnalysis;
+    aiAnalysis?: AIAnalysis;
   };
+
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      // Validate the AI response structure
+      if (
+        initialAnalysis &&
+        Array.isArray(initialAnalysis.applicableLaws) &&
+        typeof initialAnalysis.legalImplications === 'string' &&
+        Array.isArray(initialAnalysis.recommendations) &&
+        typeof initialAnalysis.risk === 'string'
+      ) {
+        setAiAnalysis(initialAnalysis);
+      } else {
+        throw new Error('AI response is not in the expected format.');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Failed to process the AI response. Please try again or contact support.');
+    }
+  }, [initialAnalysis]);
+
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-red-500/10 backdrop-blur-lg rounded-xl shadow-xl p-8 border border-red-700">
+          <h2 className="text-xl font-bold text-red-400 text-center">Error</h2>
+          <p className="text-gray-300 text-center">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!aiAnalysis) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-xl p-8 border border-gray-700">
+          <h2 className="text-xl font-bold text-center text-white">Loading...</h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -27,16 +71,11 @@ const Verdict = () => {
               <BookOpen className="h-5 w-5 mr-2" />
               Applicable Laws
             </h3>
-            <div className="space-y-4 text-gray-300">
-              <div>
-                <h4 className="font-medium text-white">Primary Sections:</h4>
-                <ul className="list-disc list-inside mt-2 space-y-2">
-                  {aiAnalysis.applicableLaws.map((law, index) => (
-                    <li key={index}>{law}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+            <ul className="list-disc list-inside mt-2 space-y-2 text-gray-300">
+              {aiAnalysis.applicableLaws.map((law, index) => (
+                <li key={index}>{law}</li>
+              ))}
+            </ul>
           </div>
 
           <div className="bg-black/20 p-6 rounded-lg border border-gray-700">
@@ -44,9 +83,7 @@ const Verdict = () => {
               <AlertTriangle className="h-5 w-5 mr-2" />
               Legal Implications
             </h3>
-            <div className="space-y-4 text-gray-300">
-              <p>{aiAnalysis.legalImplications}</p>
-            </div>
+            <p className="text-gray-300">{aiAnalysis.legalImplications}</p>
           </div>
 
           <div className="bg-black/20 p-6 rounded-lg border border-gray-700">
@@ -54,13 +91,11 @@ const Verdict = () => {
               <CheckCircle className="h-5 w-5 mr-2" />
               Recommended Actions
             </h3>
-            <div className="space-y-4 text-gray-300">
-              <ol className="list-decimal list-inside space-y-3">
-                {aiAnalysis.recommendations.map((rec, index) => (
-                  <li key={index}>{rec}</li>
-                ))}
-              </ol>
-            </div>
+            <ol className="list-decimal list-inside space-y-3 text-gray-300">
+              {aiAnalysis.recommendations.map((rec, index) => (
+                <li key={index}>{rec}</li>
+              ))}
+            </ol>
           </div>
 
           <div className="bg-emerald-900/20 p-6 rounded-lg border border-emerald-700">
