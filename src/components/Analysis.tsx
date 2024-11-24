@@ -61,7 +61,7 @@ const Analysis = () => {
   const generatePDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text("AI-Powered Case Analysis", 10, 10);
+    doc.text("Digital Lawyer PK - Case Analysis", 10, 10);
     doc.setFontSize(12);
     
     let currentY = 20; // Start Y position for text
@@ -140,6 +140,8 @@ const Analysis = () => {
         doc.text(line, 10, currentY);
         currentY += 10;
       });
+      doc.text("Digital Lawyer PK - Case Analysis made by @naeem_pansota-Github/NP-55555", 10, 10);
+      
     }
 
     // Add dynamic case details (e.g., cheating, criminal breach of trust)
