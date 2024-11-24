@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Gavel, BookOpen, AlertTriangle, CheckCircle } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 import type { AIAnalysis } from '../services/gemini';
 
 const Verdict = () => {
@@ -39,6 +40,32 @@ const Verdict = () => {
     }
   }, [initialAnalysis]);
 
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Legal Assessment and Recommendations", 10, 10);
+    
+    // Add applicable laws
+    doc.setFontSize(12);
+    doc.text("Applicable Laws:", 10, 20);
+    aiAnalysis?.applicableLaws.forEach((law, index) => {
+      doc.text(`${index + 1}. ${law}`, 10, 30 + (index * 10));
+    });
+
+    // Add legal implications
+    doc.text("Legal Implications:", 10, 30 + (aiAnalysis?.applicableLaws.length * 10) + 10);
+    doc.text(aiAnalysis?.legalImplications, 10, 40 + (aiAnalysis?.applicableLaws.length * 10) + 10);
+
+    // Add recommendations
+    doc.text("Recommended Actions:", 10, 50 + (aiAnalysis?.applicableLaws.length * 10) + 20);
+    aiAnalysis?.recommendations.forEach((rec, index) => {
+      doc.text(`${index + 1}. ${rec}`, 10, 60 + (aiAnalysis?.applicableLaws.length * 10) + (index * 10) + 20);
+    });
+
+    // Save the PDF
+    doc.save("verdict_details.pdf");
+  };
+
   if (error) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -62,6 +89,9 @@ const Verdict = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
+      <button onClick={generatePDF} className="mb-4 p-2 bg-blue-500 text-white rounded">
+        Download PDF
+      </button>
       <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-xl p-8 border border-gray-700">
         <div className="flex items-center justify-center mb-8">
           <Gavel className="h-12 w-12 text-emerald-500" />

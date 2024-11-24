@@ -72,45 +72,30 @@ export async function analyzeCaseWithAI(caseDetails: CaseDetails): Promise<AIAna
     Base risk assessment on severity and evidence strength.
     Keep responses focused on Pakistani jurisdiction.`;
 
+  try {
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text();
+    
+    // Trim the response to remove any unwanted characters
+    const trimmedText = text.trim().replace(/```json|```/g, '').trim(); // Remove code block markers
+    
     try {
-      const result = await model.generateContent(prompt);
-      const response = result.response;
-      const text = response.text();
-      
-      // Trim the response to remove any unwanted characters
-      const trimmedText = text.trim().replace(/```json|```/g, '').trim(); // Remove code block markers
-      
-      try {
-        const parsedResponse = JSON.parse(trimmedText);
-  
-        // Enhanced validation to ensure the response has all required fields and correct types
-        if (!parsedResponse.applicableLaws || !Array.isArray(parsedResponse.applicableLaws) || !parsedResponse.applicableLaws.length) {
-          throw new Error('AI response is missing or invalid applicable laws');
-        }
-  
-        if (typeof parsedResponse.legalImplications !== 'string' || !parsedResponse.legalImplications) {
-          throw new Error('AI response is missing or invalid legal implications');
-        }
-  
-        if (!parsedResponse.recommendations || !Array.isArray(parsedResponse.recommendations) || !parsedResponse.recommendations.length) {
-          throw new Error('AI response is missing or invalid recommendations');
-        }
-  
-        if (!['low', 'medium', 'high'].includes(parsedResponse.risk)) {
-          throw new Error('Invalid risk level in AI response');
-        }
-  
-        return validateAIResponse(parsedResponse);
-      } catch (parseError) {
-        console.error('Failed to parse AI response:', trimmedText);
-        console.error('Parse error details:', parseError);
-        throw new Error('The AI response was not in the expected format. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error during AI analysis:', error);
-      if (error instanceof Error) {
-        throw new Error(`AI Analysis failed: ${error.message}`);
-      }
-      throw new Error('Failed to analyze case. Please try again later.');
+      const parsedResponse = JSON.parse(trimmedText);
+      return validateAIResponse(parsedResponse);
+    } catch (parseError) {
+      console.error('Failed to parse AI response:', trimmedText);
+      console.error('Parse error details:', parseError);
+      throw new Error('The AI response was not in the expected format. Please try again.');
     }
+  } catch (error) {
+    console.error('Error during AI analysis:', error);
+    if (error instanceof Error) {
+      if (error.message.includes('Candidate was blocked due to SAFETY')) {
+        throw new Error('The AI response was blocked due to safety concerns. Please modify the case details and try again.');
+      }
+      throw new Error(`AI Analysis failed: ${error.message}`);
+    }
+    throw new Error('Failed to analyze case. Please try again later.');
   }
+}
