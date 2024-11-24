@@ -48,8 +48,7 @@ const validateAIResponse = (response: any): AIAnalysis => {
 export async function analyzeCaseWithAI(caseDetails: CaseDetails): Promise<AIAnalysis> {
   const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-  const prompt = `
-    You are a legal expert in Pakistani law. Analyze this case and provide a response in valid JSON format only.
+  const prompt = `You are a legal expert in Pakistani law. Analyze this case and provide a response in valid JSON format only.
     Do not include any additional text before or after the JSON.
     
     Case Details:
@@ -71,26 +70,31 @@ export async function analyzeCaseWithAI(caseDetails: CaseDetails): Promise<AIAna
 
     Ensure all laws referenced are from actual Pakistani legal codes.
     Base risk assessment on severity and evidence strength.
-    Keep responses focused on Pakistani jurisdiction.
-  `;
+    Keep responses focused on Pakistani jurisdiction.`;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
-    
     try {
-      const parsedResponse = JSON.parse(text.trim());
-      return validateAIResponse(parsedResponse);
-    } catch (parseError) {
-      console.error('Failed to parse AI response:', text);
-      throw new Error('The AI response was not in the expected format. Please try again.');
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      const text = response.text();
+      
+      try {
+        const parsedResponse = JSON.parse(text.trim());
+  
+        // New validation to ensure the response has all required fields
+        if (!parsedResponse.applicableLaws || !parsedResponse.legalImplications || !parsedResponse.recommendations || !parsedResponse.risk) {
+          throw new Error('AI response is missing required fields');
+        }
+  
+        return validateAIResponse(parsedResponse);
+      } catch (parseError) {
+        console.error('Failed to parse AI response:', text);
+        throw new Error('The AI response was not in the expected format. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error during AI analysis:', error);
+      if (error instanceof Error) {
+        throw new Error(`AI Analysis failed: ${error.message}`);
+      }
+      throw new Error('Failed to analyze case. Please try again later.');
     }
-  } catch (error) {
-    console.error('Error during AI analysis:', error);
-    if (error instanceof Error) {
-      throw new Error(`AI Analysis failed: ${error.message}`);
-    }
-    throw new Error('Failed to analyze case. Please try again later.');
   }
-}
