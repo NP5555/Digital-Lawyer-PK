@@ -77,8 +77,11 @@ export async function analyzeCaseWithAI(caseDetails: CaseDetails): Promise<AIAna
       const response = result.response;
       const text = response.text();
       
+      // Trim the response to remove any unwanted characters
+      const trimmedText = text.trim().replace(/```json|```/g, '').trim(); // Remove code block markers
+      
       try {
-        const parsedResponse = JSON.parse(text.trim());
+        const parsedResponse = JSON.parse(trimmedText);
   
         // Enhanced validation to ensure the response has all required fields and correct types
         if (!parsedResponse.applicableLaws || !Array.isArray(parsedResponse.applicableLaws) || !parsedResponse.applicableLaws.length) {
@@ -99,7 +102,8 @@ export async function analyzeCaseWithAI(caseDetails: CaseDetails): Promise<AIAna
   
         return validateAIResponse(parsedResponse);
       } catch (parseError) {
-        console.error('Failed to parse AI response:', text);
+        console.error('Failed to parse AI response:', trimmedText);
+        console.error('Parse error details:', parseError);
         throw new Error('The AI response was not in the expected format. Please try again.');
       }
     } catch (error) {

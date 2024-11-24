@@ -14,22 +14,28 @@ const Verdict = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('Initial AI Analysis:', initialAnalysis);
     try {
-      // Validate the AI response structure
-      if (
-        initialAnalysis &&
-        Array.isArray(initialAnalysis.applicableLaws) &&
-        typeof initialAnalysis.legalImplications === 'string' &&
-        Array.isArray(initialAnalysis.recommendations) &&
-        typeof initialAnalysis.risk === 'string'
-      ) {
-        setAiAnalysis(initialAnalysis);
-      } else {
-        throw new Error('AI response is not in the expected format.');
+      if (!initialAnalysis) {
+        throw new Error('AI response is null or undefined.');
       }
+      if (!Array.isArray(initialAnalysis.applicableLaws)) {
+        throw new Error('Applicable laws should be an array.');
+      }
+      if (typeof initialAnalysis.legalImplications !== 'string') {
+        throw new Error('Legal implications should be a string.');
+      }
+      if (!Array.isArray(initialAnalysis.recommendations)) {
+        throw new Error('Recommendations should be an array.');
+      }
+      if (typeof initialAnalysis.risk !== 'string') {
+        throw new Error('Risk should be a string.');
+      }
+      
+      setAiAnalysis(initialAnalysis);
     } catch (err) {
       console.error(err);
-      setError('Failed to process the AI response. Please try again or contact support.');
+      setError(`Failed to process the AI response: ${err.message}`);
     }
   }, [initialAnalysis]);
 
