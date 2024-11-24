@@ -80,9 +80,21 @@ export async function analyzeCaseWithAI(caseDetails: CaseDetails): Promise<AIAna
       try {
         const parsedResponse = JSON.parse(text.trim());
   
-        // New validation to ensure the response has all required fields
-        if (!parsedResponse.applicableLaws || !parsedResponse.legalImplications || !parsedResponse.recommendations || !parsedResponse.risk) {
-          throw new Error('AI response is missing required fields');
+        // Enhanced validation to ensure the response has all required fields and correct types
+        if (!parsedResponse.applicableLaws || !Array.isArray(parsedResponse.applicableLaws) || !parsedResponse.applicableLaws.length) {
+          throw new Error('AI response is missing or invalid applicable laws');
+        }
+  
+        if (typeof parsedResponse.legalImplications !== 'string' || !parsedResponse.legalImplications) {
+          throw new Error('AI response is missing or invalid legal implications');
+        }
+  
+        if (!parsedResponse.recommendations || !Array.isArray(parsedResponse.recommendations) || !parsedResponse.recommendations.length) {
+          throw new Error('AI response is missing or invalid recommendations');
+        }
+  
+        if (!['low', 'medium', 'high'].includes(parsedResponse.risk)) {
+          throw new Error('Invalid risk level in AI response');
         }
   
         return validateAIResponse(parsedResponse);
