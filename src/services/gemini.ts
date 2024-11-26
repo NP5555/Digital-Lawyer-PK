@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI('AIzaSyAlAhvg07qmKKVfB1UVpgDATV6_kWYZy2k');
+const genAI = new GoogleGenerativeAI('AIzaSyDpoA5XShO9808kzW16a5fstPKeHgjdz4Q');
 
 export interface CaseDetails {
   caseType: string;
