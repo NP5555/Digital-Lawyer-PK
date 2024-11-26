@@ -5,7 +5,7 @@
 
 <img src="./src/assets/CaseDetails-.png" alt="Digital Lawyer PK">
 
-<img src="./src/assets/analysingCase-.png.png" alt="Digital Lawyer PK">
+<img src="./src/assets/analysingCase-.png" alt="Digital Lawyer PK">
 
 <img src="./src/assets/fullprivew.png" alt="Digital Lawyer PK">
 
